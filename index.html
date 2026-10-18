@@ -2218,7 +2218,21 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
 </script>
 <script>
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
-  window.addEventListener('load', function () { navigator.serviceWorker.register('./sw.js').catch(function () {}); });
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').then(function (reg) {
+      reg.update(); /* 每次打开都强制检查 Service Worker 更新 */
+      reg.addEventListener('updatefound', function () {
+        var nw = reg.installing;
+        if (nw) nw.addEventListener('statechange', function () {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            /* 有新版本接管，刷新页面 */
+            navigator.serviceWorker.addEventListener('controllerchange', function () { location.reload(); });
+            nw.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+    }).catch(function () {});
+  });
 }
 </script>
 </body>

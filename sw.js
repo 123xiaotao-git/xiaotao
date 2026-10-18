@@ -1,8 +1,12 @@
 /* 改了应用之后，把下面的版本号 +1，手机上的缓存才会更新 */
-var CACHE = 'xiaotao-v3';
+var CACHE = 'xiaotao-v4';
 var ASSETS = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }).then(function () { return self.skipWaiting(); }));
+});
+/* 收到页面发来的切换信号，立即激活新版本 */
+self.addEventListener('message', function (e) {
+  if (e.data && e.data.type === 'SKIP_WAITING') { self.skipWaiting(); }
 });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (ks) {
